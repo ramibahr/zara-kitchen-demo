@@ -1132,11 +1132,11 @@
   const form      = document.getElementById('booking-form');
   const submitBtn = document.getElementById('submit-btn');
 
-  const _d = new Date();
-  document.getElementById('date').min =
-    _d.getFullYear() + '-' +
-    String(_d.getMonth() + 1).padStart(2, '0') + '-' +
-    String(_d.getDate()).padStart(2, '0');
+  document.addEventListener('DOMContentLoaded', () => {
+    const dateInput = document.querySelector('input[type="date"]');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
+  });
 
   /* ── Custom time dropdown ──────────────────────────────────── */
   const timeCsel    = document.getElementById('time-csel');
