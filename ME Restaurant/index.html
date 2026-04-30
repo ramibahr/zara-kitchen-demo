@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zara Kitchen — Authentic Middle Eastern Cuisine, London</title>
+  <style>
+    /* ─── Reset & Variables ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #FAF7F2;
+      --bg-dark:     #F0EBE0;
+      --text:        #1A1A1A;
+      --gold:        #C9973A;
+      --gold-dark:   #a87b28;
+      --terra:       #8B3A2A;
+      --terra-deep:  #6b2b1d;
+      --ink:         #15090300;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 { font-family: Georgia, 'Times New Roman', serif; font-weight: normal; }
+
+    img { display: block; max-width: 100%; }
+
+    /* ─── Scroll Fade-in ────────────────────────────────────────────── */
+    .fade {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .fade.visible { opacity: 1; transform: translateY(0); }
+    .fade.delay-1 { transition-delay: 0.1s; }
+    .fade.delay-2 { transition-delay: 0.2s; }
+    .fade.delay-3 { transition-delay: 0.3s; }
+    .fade.delay-4 { transition-delay: 0.4s; }
+    .fade.delay-5 { transition-delay: 0.5s; }
+
+    /* ─── Navigation ────────────────────────────────────────────────── */
+    #nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 900;
+      padding: 0 2rem;
+      transition: background 0.35s ease, box-shadow 0.35s ease;
+    }
+    #nav.scrolled {
+      background: rgba(250, 247, 242, 0.97);
+      box-shadow: 0 2px 24px rgba(0,0,0,0.08);
+      backdrop-filter: blur(6px);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+    .nav-logo {
+      font-family: Georgia, serif;
+      font-size: 1.55rem;
+      letter-spacing: 0.03em;
+      color: var(--gold);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    #nav.scrolled .nav-logo { color: var(--terra); }
+
+    .nav-links { list-style: none; display: flex; gap: 2.5rem; }
+    .nav-links a {
+      color: rgba(255,255,255,0.88);
+      text-decoration: none;
+      font-size: 0.9rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      transition: color 0.2s ease;
+    }
+    #nav.scrolled .nav-links a { color: var(--text); }
+    .nav-links a:hover { color: var(--gold) !important; }
+
+    /* hamburger */
+    .burger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .burger span {
+      display: block; width: 26px; height: 2px;
+      background: white; border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s ease;
+    }
+    #nav.scrolled .burger span { background: var(--text); }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* mobile drawer */
+    #mobile-nav {
+      display: none;
+      position: fixed;
+      top: 72px; left: 0; right: 0;
+      background: rgba(250, 247, 242, 0.98);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      z-index: 899;
+      padding: 1rem 2rem 1.5rem;
+    }
+    #mobile-nav.open { display: block; }
+    #mobile-nav ul { list-style: none; }
+    #mobile-nav li { border-bottom: 1px solid var(--bg-dark); }
+    #mobile-nav a {
+      display: block; padding: 0.85rem 0;
+      color: var(--text); text-decoration: none;
+      font-size: 1.05rem; letter-spacing: 0.04em;
+      transition: color 0.2s ease;
+    }
+    #mobile-nav a:hover { color: var(--gold); }
+
+    /* ─── Hero ──────────────────────────────────────────────────────── */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1.8s ease;
+    }
+    .hero-bg.active { opacity: 1; }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(15, 5, 0, 0.6) 0%,
+        rgba(15, 5, 0, 0.52) 55%,
+        rgba(15, 5, 0, 0.72) 100%
+      );
+    }
+    /* subtle arabesque pattern overlay */
+    .hero-pattern {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle at 1px 1px, rgba(201,151,58,0.06) 1px, transparent 0);
+      background-size: 32px 32px;
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 820px; padding: 2rem 1.5rem;
+    }
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.6rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid rgba(201,151,58,0.35);
+    }
+    .hero-title {
+      font-size: clamp(2.4rem, 6.5vw, 4.8rem);
+      color: #fff;
+      line-height: 1.18;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.01em;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: rgba(201,151,58,0.85);
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: rgba(255,255,255,0.72);
+      margin-bottom: 2.8rem;
+      letter-spacing: 0.03em;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.95rem 2.8rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s ease, color 0.2s ease,
+                  border-color 0.2s ease, transform 0.2s ease,
+                  box-shadow 0.2s ease;
+    }
+    .btn-gold {
+      background: var(--gold);
+      color: #fff;
+      border: 2px solid var(--gold);
+    }
+    .btn-gold:hover {
+      background: transparent;
+      color: var(--gold);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(201,151,58,0.3);
+    }
+    .hero-scroll {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+      color: rgba(255,255,255,0.4); font-size: 0.72rem; letter-spacing: 0.15em;
+      text-transform: uppercase; z-index: 2;
+    }
+    .hero-scroll::after {
+      content: '';
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, rgba(201,151,58,0.6), transparent);
+      animation: scrollPulse 2s ease infinite;
+    }
+    @keyframes scrollPulse {
+      0%,100% { opacity: 0.4; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.15); }
+    }
+
+    /* ─── Section base ──────────────────────────────────────────────── */
+    section { padding: 6rem 2rem; }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    .section-label {
+      text-align: center;
+      font-size: 0.75rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: clamp(1.9rem, 3.5vw, 2.7rem);
+      color: var(--terra);
+      text-align: center;
+      margin-bottom: 0.8rem;
+    }
+    .section-sub {
+      text-align: center;
+      color: #777;
+      max-width: 480px;
+      margin: 0 auto 3.5rem;
+      font-size: 0.98rem;
+    }
+
+    /* ornamental divider */
+    .ornament {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.9rem; margin: 1.5rem auto;
+    }
+    .ornament::before, .ornament::after {
+      content: '';
+      width: 60px; height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold));
+    }
+    .ornament::after { background: linear-gradient(to left, transparent, var(--gold)); }
+    .ornament-glyph {
+      color: var(--gold); font-size: 1rem; opacity: 0.8; letter-spacing: 0.2em;
+    }
+
+    /* ─── About ─────────────────────────────────────────────────────── */
+    #about { background: var(--bg-dark); }
+    .about-wrap {
+      max-width: 720px; margin: 0 auto; text-align: center;
+    }
+    .about-wrap p {
+      font-size: 1.08rem;
+      color: #4a4040;
+      line-height: 1.95;
+    }
+    .about-wrap p + p { margin-top: 1.2rem; }
+
+    /* ─── Menu ──────────────────────────────────────────────────────── */
+    #menu { background: var(--bg); }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.75rem;
+    }
+    .dish-card {
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .dish-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 36px rgba(0,0,0,0.11);
+    }
+    .dish-img {
+      width: 100%; height: 200px;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .dish-card:hover .dish-img { transform: scale(1.04); }
+    .dish-img-wrap { overflow: hidden; }
+    .dish-body { padding: 1.4rem 1.5rem 1.6rem; }
+    .dish-name {
+      font-size: 1.15rem;
+      color: var(--terra);
+      margin-bottom: 0.45rem;
+    }
+    .dish-desc {
+      font-size: 0.875rem;
+      color: #777;
+      line-height: 1.65;
+      margin-bottom: 1rem;
+    }
+    .dish-footer {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .dish-price {
+      font-family: Georgia, serif;
+      font-size: 1.1rem;
+      color: var(--gold);
+    }
+    .dish-tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(139,58,42,0.55);
+      border: 1px solid rgba(139,58,42,0.2);
+      padding: 0.2rem 0.55rem;
+      border-radius: 1px;
+    }
+
+    /* ─── Reservations ──────────────────────────────────────────────── */
+    #reservations {
+      background: var(--terra);
+      position: relative; overflow: hidden;
+    }
+    #reservations::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+    #reservations .section-label { color: rgba(201,151,58,0.8); }
+    #reservations .section-title { color: #fff; }
+    #reservations .section-sub { color: rgba(255,255,255,0.6); }
+
+    .booking-form {
+      max-width: 620px; margin: 0 auto;
+      position: relative; z-index: 1;
+      transition: opacity 0.35s ease;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { margin-bottom: 1rem; }
+    label {
+      display: block;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 0.4rem;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #fff;
+      font-size: 0.97rem;
+      font-family: inherit;
+      outline: none;
+      border-radius: 1px;
+      transition: border-color 0.2s ease, background 0.2s ease;
+      -webkit-appearance: none;
+    }
+    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.35); }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold);
+      background: rgba(255,255,255,0.14);
+    }
+    select option { background: var(--terra-deep); color: #fff; }
+
+    /* ── Custom time dropdown ──────────────────────────────────── */
+    .csel { position: relative; }
+    .csel-btn {
+      width: 100%; padding: 0.8rem 1rem;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #fff; font-size: 0.97rem; font-family: inherit;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; text-align: left; border-radius: 1px;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .csel-btn:focus, .csel.open .csel-btn {
+      border-color: var(--gold); background: rgba(255,255,255,0.14); outline: none;
+    }
+    .csel.csel-error .csel-btn { border-color: #e06060; }
+    .csel-placeholder { color: rgba(255,255,255,0.35); }
+    .csel-arrow { flex-shrink: 0; margin-left: 0.5rem; transition: transform 0.2s ease; }
+    .csel.open .csel-arrow { transform: rotate(180deg); }
+    .csel-list {
+      display: none;
+      position: absolute; top: calc(100% + 2px); left: 0; right: 0;
+      background: var(--terra-deep);
+      border: 1px solid rgba(201,151,58,0.4);
+      max-height: 220px; overflow-y: auto;
+      z-index: 200; list-style: none;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+    }
+    .csel.open .csel-list { display: block; }
+    .csel-list li {
+      padding: 0.65rem 1rem; color: rgba(255,255,255,0.82);
+      cursor: pointer; font-size: 0.97rem;
+      transition: background 0.15s ease, color 0.15s ease;
+      user-select: none;
+    }
+    .csel-list li:hover { background: rgba(201,151,58,0.18); color: var(--gold); }
+    .csel-list li[aria-selected="true"] { background: rgba(201,151,58,0.28); color: var(--gold); }
+    .csel-list::-webkit-scrollbar { width: 4px; }
+    .csel-list::-webkit-scrollbar-track { background: transparent; }
+    .csel-list::-webkit-scrollbar-thumb { background: rgba(201,151,58,0.4); border-radius: 2px; }
+    input[type="date"] { position: relative; cursor: pointer; }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    textarea { resize: vertical; min-height: 108px; }
+    .btn-submit {
+      width: 100%; margin-top: 0.4rem;
+      background: var(--gold);
+      color: #fff;
+      border: 2px solid var(--gold);
+      padding: 1rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .btn-submit:hover {
+      background: transparent;
+      color: var(--gold);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(201,151,58,0.35);
+    }
+    .btn-submit.confirmed {
+      background: #2d7a47; border-color: #2d7a47;
+      pointer-events: none; transform: none;
+    }
+
+    /* ── Confirmation screen ──────────────────────────────────── */
+    #reservations { transition: background 0.45s ease; }
+    #reservations.conf-mode { background: var(--bg); }
+
+    #res-form, #res-conf {
+      transition: opacity 0.35s ease;
+    }
+    #res-conf { opacity: 0; }
+    #res-conf.shown { opacity: 1; }
+
+    .conf-screen {
+      max-width: 500px; margin: 0 auto;
+      text-align: center; padding: 1rem 0 0.5rem;
+    }
+
+    /* tick: animation lives on .tick-active so it can be replayed */
+    .tick-wrap { width: 100px; height: 100px; margin: 0 auto 2.4rem; }
+    .tick-svg  { width: 100%; height: 100%; overflow: visible; }
+    .tick-circle {
+      fill: none; stroke: #3db870; stroke-width: 2.5;
+      stroke-dasharray: 226.2; stroke-dashoffset: 226.2;
+    }
+    .tick-check {
+      fill: none; stroke: #3db870; stroke-width: 4;
+      stroke-linecap: round; stroke-linejoin: round;
+      stroke-dasharray: 56; stroke-dashoffset: 56;
+    }
+    .tick-active .tick-circle {
+      animation: drawCircle 0.8s cubic-bezier(0.4,0,0.2,1) 0.15s forwards;
+    }
+    .tick-active .tick-check {
+      animation: drawCheck 0.38s cubic-bezier(0.4,0,0.2,1) 0.85s forwards;
+    }
+    @keyframes drawCircle { to { stroke-dashoffset: 0; } }
+    @keyframes drawCheck  { to { stroke-dashoffset: 0; } }
+
+    .conf-heading {
+      font-size: clamp(1.9rem, 4vw, 2.6rem);
+      color: var(--terra); font-weight: normal;
+      margin-bottom: 0.9rem;
+    }
+    .conf-msg {
+      color: #888; font-size: 1rem; line-height: 1.85;
+      max-width: 390px; margin: 0 auto 2.6rem;
+    }
+    .conf-card {
+      background: #fff;
+      border: 1px solid rgba(139,58,42,0.14);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+      padding: 0 2.2rem; margin-bottom: 2.6rem; text-align: left;
+    }
+    .conf-row {
+      display: flex; align-items: baseline;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid #f0ebe0;
+    }
+    .conf-row:last-child { border-bottom: none; }
+    .conf-lbl {
+      font-size: 0.72rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--gold); flex-shrink: 0;
+    }
+    .conf-val {
+      font-family: Georgia, serif;
+      color: var(--text); font-size: 0.97rem;
+      text-align: right; margin-left: 1rem;
+    }
+    .conf-reset {
+      background: none; border: none; color: #bbb;
+      font-size: 0.88rem; font-family: inherit; cursor: pointer;
+      letter-spacing: 0.04em; text-decoration: underline;
+      text-underline-offset: 4px; transition: color 0.2s ease; padding: 0;
+    }
+    .conf-reset:hover { color: var(--terra); }
+
+    /* ─── Find Us ───────────────────────────────────────────────────── */
+    #find-us { background: var(--bg); }
+    .find-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3.5rem;
+      align-items: start;
+    }
+    .map-frame {
+      width: 100%; height: 380px; border: 0;
+      filter: sepia(20%) saturate(75%);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .loc-info h3 {
+      font-size: 1.5rem;
+      color: var(--terra);
+      margin-bottom: 2rem;
+    }
+    .info-block { margin-bottom: 1.6rem; }
+    .info-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.35rem;
+    }
+    .info-value {
+      color: #555;
+      font-size: 0.97rem;
+      line-height: 1.75;
+    }
+    .info-value a { color: var(--terra); text-decoration: none; }
+    .info-value a:hover { color: var(--gold); }
+
+    /* ─── Footer ────────────────────────────────────────────────────── */
+    footer {
+      background: #120a03;
+      padding: 2.2rem 2rem;
+      text-align: center;
+      color: rgba(255,255,255,0.35);
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+    }
+    footer strong { color: var(--gold); font-weight: normal; }
+
+    /* ─── Reviews ───────────────────────────────────────────────────── */
+    #reviews { background: var(--bg-dark); }
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.75rem;
+    }
+    .review-card {
+      background: var(--bg);
+      padding: 2rem 2.2rem;
+      border: 1px solid rgba(201,151,58,0.14);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .review-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 32px rgba(0,0,0,0.09);
+    }
+    .review-stars {
+      color: var(--gold);
+      font-size: 1rem;
+      letter-spacing: 0.15em;
+      margin-bottom: 1.1rem;
+    }
+    .review-quote {
+      font-family: Georgia, serif;
+      font-size: 1.02rem;
+      color: var(--terra);
+      line-height: 1.75;
+      font-style: italic;
+      margin-bottom: 1.4rem;
+    }
+    .review-quote::before { content: '\201C'; }
+    .review-quote::after  { content: '\201D'; }
+    .review-author {
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+    }
+    .review-author strong { color: var(--text); font-weight: 600; }
+
+    /* ─── Sticky book button ─────────────────────────────────────────── */
+    #sticky-book {
+      position: fixed;
+      bottom: 2rem; right: 2rem;
+      z-index: 850;
+      background: var(--terra);
+      color: var(--gold);
+      border: none;
+      padding: 0.9rem 1.8rem;
+      font-family: inherit;
+      font-size: 0.82rem;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease, transform 0.4s ease,
+                  background 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.22);
+    }
+    #sticky-book.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    #sticky-book:hover {
+      background: var(--terra-deep);
+      box-shadow: 0 6px 26px rgba(0,0,0,0.3);
+      transform: translateY(-2px);
+    }
+
+    /* ─── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .menu-grid { grid-template-columns: repeat(2, 1fr); }
+      .find-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    }
+    @media (max-width: 720px) {
+      .nav-links { display: none; }
+      .burger { display: flex; }
+      section { padding: 4.5rem 1.5rem; }
+      .form-row { grid-template-columns: 1fr; }
+      #sticky-book {
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+      }
+      #sticky-book.visible  { transform: translateX(-50%) translateY(0); }
+      #sticky-book:hover    { transform: translateX(-50%) translateY(-2px); }
+    }
+    @media (max-width: 520px) {
+      .menu-grid { grid-template-columns: 1fr; }
+      .reviews-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAVIGATION ═══════════════════════════════════════════════════ -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">Zara Kitchen</a>
+    <ul class="nav-links">
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#reviews">Reviews</a></li>
+      <li><a href="#reservations">Reservations</a></li>
+      <li><a href="#find-us">Contact</a></li>
+    </ul>
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div id="mobile-nav" role="dialog" aria-label="Navigation menu">
+  <ul>
+    <li><a href="#menu"         onclick="closeNav()">Menu</a></li>
+    <li><a href="#about"        onclick="closeNav()">About</a></li>
+    <li><a href="#reviews"      onclick="closeNav()">Reviews</a></li>
+    <li><a href="#reservations" onclick="closeNav()">Reservations</a></li>
+    <li><a href="#find-us"      onclick="closeNav()">Contact</a></li>
+  </ul>
+</div>
+
+<!-- ═══ HERO ══════════════════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-bg active" style="background-image:url('https://images.unsplash.com/photo-1753202048970-16fe8f5e55fa?q=80&w=1074&auto=format&fit=crop')"></div>
+  <div class="hero-bg" style="background-image:url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1074&auto=format&fit=crop')"></div>
+  <div class="hero-bg" style="background-image:url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1074&auto=format&fit=crop')"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-pattern"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">London · Est. 2018</p>
+    <h1 class="hero-title">Authentic<br><em>Middle Eastern</em><br>Cuisine</h1>
+    <p class="hero-sub">Handcrafted recipes passed down through generations &nbsp;·&nbsp; London</p>
+    <a href="#reservations" class="btn btn-gold">Reserve a Table</a>
+  </div>
+  <div class="hero-scroll" aria-hidden="true">Scroll</div>
+</section>
+
+<!-- ═══ ABOUT ══════════════════════════════════════════════════════════ -->
+<section id="about">
+  <div class="container">
+    <div class="about-wrap">
+      <p class="section-label fade">Our Story</p>
+      <h2 class="section-title fade delay-1">A Kitchen Full of Memories</h2>
+      <div class="ornament fade delay-2"><span class="ornament-glyph">❈</span></div>
+      <p class="fade delay-2">
+        Zara Kitchen is a family-run restaurant in the heart of London, born from a deep love of Middle Eastern culinary heritage.
+        Every dish carries the warmth of a grandmother's kitchen — slow-cooked stews fragrant with cumin and coriander,
+        smoky grilled meats marinated overnight, and desserts that taste of rose water and memory.
+      </p>
+      <p class="fade delay-3">
+        We draw our inspiration from the vibrant food cultures of Lebanon, Syria, Jordan, and Palestine,
+        bringing their finest flavours to your table with honesty and care.
+        Whether you're sharing a mezze with old friends or discovering these tastes for the first time,
+        you are always welcome here. This is our home — and tonight, it is yours.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MENU ═══════════════════════════════════════════════════════════ -->
+<section id="menu">
+  <div class="container">
+    <p class="section-label fade">Our Favourites</p>
+    <h2 class="section-title fade delay-1">Menu Highlights</h2>
+    <p class="section-sub fade delay-2">A taste of what awaits you</p>
+    <div class="menu-grid">
+
+      <div class="dish-card fade delay-1">
+        <div class="dish-img-wrap">
+          <img src="https://images.unsplash.com/photo-1743674453093-592bed88018e?q=80&w=1235&auto=format&fit=crop" alt="Mezze Platter" class="dish-img" loading="lazy">
+        </div>
+        <div class="dish-body">
+          <h3 class="dish-name">Mezze Platter</h3>
+          <p class="dish-desc">A generous spread of hummus, baba ganoush, tabbouleh, warm flatbread, and seasonal pickles — the perfect start.</p>
+          <div class="dish-footer">
+            <span class="dish-price">£14.50</span>
+            <span class="dish-tag">Vegetarian</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dish-card fade delay-2">
+        <div class="dish-img-wrap">
+          <img src="https://images.unsplash.com/photo-1719282432114-45fd6c6df642?q=80&w=1170&auto=format&fit=crop" alt="Lamb Shawarma" class="dish-img" loading="lazy">
+        </div>
+        <div class="dish-body">
+          <h3 class="dish-name">Lamb Shawarma</h3>
+          <p class="dish-desc">Slow-roasted lamb marinated in a blend of seven spices, served with toum, fresh herbs and pickled chilli.</p>
+          <div class="dish-footer">
+            <span class="dish-price">£18.00</span>
+            <span class="dish-tag">Chef's Pick</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dish-card fade delay-3">
+        <div class="dish-img-wrap">
+          <img src="https://images.unsplash.com/photo-1719073878492-44f895c92399?q=80&w=687&auto=format&fit=crop" alt="Grilled Halloumi" class="dish-img" loading="lazy">
+        </div>
+        <div class="dish-body">
+          <h3 class="dish-name">Grilled Halloumi</h3>
+          <p class="dish-desc">Pan-seared Cypriot halloumi with pomegranate molasses, toasted pine nuts and a scatter of fresh mint leaves.</p>
+          <div class="dish-footer">
+            <span class="dish-price">£11.50</span>
+            <span class="dish-tag">Vegetarian</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dish-card fade delay-1">
+        <div class="dish-img-wrap">
+          <img src="https://images.unsplash.com/photo-1603133872497-f29809b750bf?q=80&w=1113&auto=format&fit=crop" alt="Hummus" class="dish-img" loading="lazy">
+        </div>
+        <div class="dish-body">
+          <h3 class="dish-name">Hummus</h3>
+          <p class="dish-desc">Silky smooth hummus topped with extra virgin olive oil and smoked paprika, with freshly baked pita bread.</p>
+          <div class="dish-footer">
+            <span class="dish-price">£8.50</span>
+            <span class="dish-tag">Vegan</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dish-card fade delay-2">
+        <div class="dish-img-wrap">
+          <img src="https://images.unsplash.com/photo-1676014959543-81df1079b423?q=80&w=687&auto=format&fit=crop" alt="Baklava" class="dish-img" loading="lazy">
+        </div>
+        <div class="dish-body">
+          <h3 class="dish-name">Baklava</h3>
+          <p class="dish-desc">Flaky layers of filo pastry filled with crushed pistachios and walnuts, soaked in orange blossom honey syrup.</p>
+          <div class="dish-footer">
+            <span class="dish-price">£6.50</span>
+            <span class="dish-tag">Dessert</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dish-card fade delay-3">
+        <div class="dish-img-wrap">
+          <img src="https://images.unsplash.com/photo-1591299089616-c9604047b1a6?q=80&w=735&auto=format&fit=crop" alt="Mint Tea" class="dish-img" loading="lazy">
+        </div>
+        <div class="dish-body">
+          <h3 class="dish-name">Mint Tea</h3>
+          <p class="dish-desc">Traditional Moroccan-style fresh mint tea, brewed with gunpowder green tea and poured from height for a perfect froth.</p>
+          <div class="dish-footer">
+            <span class="dish-price">£3.50</span>
+            <span class="dish-tag">Hot Drink</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ REVIEWS ════════════════════════════════════════════════════════ -->
+<section id="reviews">
+  <div class="container">
+    <p class="section-label fade">Guest Reviews</p>
+    <h2 class="section-title fade delay-1">What Our Guests Say</h2>
+    <p class="section-sub fade delay-2">Loved by Londoners</p>
+    <div class="reviews-grid">
+
+      <div class="review-card fade delay-1">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-quote">The best shawarma I've had outside of Beirut. The flavours took me straight back home.</p>
+        <p class="review-author"><strong>Khalid</strong> &nbsp;·&nbsp; Mayfair</p>
+      </div>
+
+      <div class="review-card fade delay-2">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-quote">Zara Kitchen is our family's favourite. Warm atmosphere, generous portions and genuinely authentic food.</p>
+        <p class="review-author"><strong>Sarah</strong> &nbsp;·&nbsp; Islington</p>
+      </div>
+
+      <div class="review-card fade delay-3">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-quote">The mezze platter alone is worth the visit. We came for dinner and stayed for dessert twice.</p>
+        <p class="review-author"><strong>James</strong> &nbsp;·&nbsp; Covent Garden</p>
+      </div>
+
+      <div class="review-card fade delay-4">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-quote">Perfect for a date night. The staff made us feel so welcome and the baklava was incredible.</p>
+        <p class="review-author"><strong>Priya</strong> &nbsp;·&nbsp; Shoreditch</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ RESERVATIONS ════════════════════════════════════════════════════ -->
+<section id="reservations">
+  <div id="res-form">
+  <div class="container">
+    <p class="section-label fade">Book a Table</p>
+    <h2 class="section-title fade delay-1">Reserve a Table</h2>
+    <p class="section-sub fade delay-2">We look forward to welcoming you</p>
+    <form class="booking-form fade delay-2" id="booking-form" novalidate>
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" placeholder="Your name" autocomplete="name" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input type="date" id="date" name="date" required>
+        </div>
+        <div class="form-group">
+          <label for="time-trigger">Preferred Time</label>
+          <div class="csel" id="time-csel">
+            <button type="button" class="csel-btn" id="time-trigger"
+                    aria-haspopup="listbox" aria-expanded="false" aria-controls="time-list">
+              <span class="csel-val csel-placeholder">Select a time</span>
+              <svg class="csel-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <ul class="csel-list" id="time-list" role="listbox" aria-label="Preferred Time">
+              <li role="option" data-val="12:00">12:00</li>
+              <li role="option" data-val="12:15">12:15</li>
+              <li role="option" data-val="12:30">12:30</li>
+              <li role="option" data-val="12:45">12:45</li>
+              <li role="option" data-val="13:00">13:00</li>
+              <li role="option" data-val="13:15">13:15</li>
+              <li role="option" data-val="13:30">13:30</li>
+              <li role="option" data-val="13:45">13:45</li>
+              <li role="option" data-val="14:00">14:00</li>
+              <li role="option" data-val="14:15">14:15</li>
+              <li role="option" data-val="14:30">14:30</li>
+              <li role="option" data-val="14:45">14:45</li>
+              <li role="option" data-val="15:00">15:00</li>
+              <li role="option" data-val="15:15">15:15</li>
+              <li role="option" data-val="15:30">15:30</li>
+              <li role="option" data-val="15:45">15:45</li>
+              <li role="option" data-val="16:00">16:00</li>
+              <li role="option" data-val="16:15">16:15</li>
+              <li role="option" data-val="16:30">16:30</li>
+              <li role="option" data-val="16:45">16:45</li>
+              <li role="option" data-val="17:00">17:00</li>
+              <li role="option" data-val="17:15">17:15</li>
+              <li role="option" data-val="17:30">17:30</li>
+              <li role="option" data-val="17:45">17:45</li>
+              <li role="option" data-val="18:00">18:00</li>
+              <li role="option" data-val="18:15">18:15</li>
+              <li role="option" data-val="18:30">18:30</li>
+              <li role="option" data-val="18:45">18:45</li>
+              <li role="option" data-val="19:00">19:00</li>
+              <li role="option" data-val="19:15">19:15</li>
+              <li role="option" data-val="19:30">19:30</li>
+              <li role="option" data-val="19:45">19:45</li>
+              <li role="option" data-val="20:00">20:00</li>
+              <li role="option" data-val="20:15">20:15</li>
+              <li role="option" data-val="20:30">20:30</li>
+              <li role="option" data-val="20:45">20:45</li>
+              <li role="option" data-val="21:00">21:00</li>
+              <li role="option" data-val="21:15">21:15</li>
+              <li role="option" data-val="21:30">21:30</li>
+              <li role="option" data-val="21:45">21:45</li>
+              <li role="option" data-val="22:00">22:00</li>
+              <li role="option" data-val="22:15">22:15</li>
+              <li role="option" data-val="22:30">22:30</li>
+              <li role="option" data-val="22:45">22:45</li>
+              <li role="option" data-val="23:00">23:00</li>
+            </ul>
+          </div>
+          <input type="hidden" id="time" name="time">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="For confirmation" autocomplete="email" required>
+      </div>
+      <div class="form-group">
+        <label for="guests">Number of Guests</label>
+        <select id="guests" name="guests" required>
+          <option value="" disabled selected>Select guests</option>
+          <option value="1">1 Guest</option>
+          <option value="2">2 Guests</option>
+          <option value="3">3 Guests</option>
+          <option value="4">4 Guests</option>
+          <option value="5">5 Guests</option>
+          <option value="6">6 Guests</option>
+          <option value="7+">7+ Guests (large party)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="requests">Special Requests</label>
+        <textarea id="requests" name="requests" placeholder="Dietary requirements, celebrations, accessibility needs…"></textarea>
+      </div>
+      <button type="submit" class="btn btn-submit" id="submit-btn">Confirm Reservation</button>
+    </form>
+  </div>
+  </div><!-- /res-form -->
+
+  <div id="res-conf" hidden>
+    <div class="container">
+      <div class="conf-screen">
+        <div class="tick-wrap" id="tick-wrap">
+          <svg class="tick-svg" viewBox="0 0 80 80" aria-hidden="true">
+            <circle class="tick-circle" cx="40" cy="40" r="36" transform="rotate(-90 40 40)"/>
+            <path   class="tick-check"  d="M22 40 L34 52 L58 26"/>
+          </svg>
+        </div>
+        <h2 class="conf-heading">Reservation Confirmed</h2>
+        <p class="conf-msg">We look forward to welcoming you at Zara Kitchen.</p>
+        <div class="conf-card">
+          <div class="conf-row">
+            <span class="conf-lbl">Name</span>
+            <span class="conf-val" id="cval-name"></span>
+          </div>
+          <div class="conf-row">
+            <span class="conf-lbl">Date</span>
+            <span class="conf-val" id="cval-date"></span>
+          </div>
+          <div class="conf-row">
+            <span class="conf-lbl">Time</span>
+            <span class="conf-val" id="cval-time"></span>
+          </div>
+          <div class="conf-row">
+            <span class="conf-lbl">Guests</span>
+            <span class="conf-val" id="cval-guests"></span>
+          </div>
+        </div>
+        <button class="conf-reset" id="conf-reset">Make another reservation</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FIND US ═════════════════════════════════════════════════════════ -->
+<section id="find-us">
+  <div class="container">
+    <p class="section-label fade">Getting Here</p>
+    <h2 class="section-title fade delay-1">Find Us</h2>
+    <div class="find-grid fade delay-2">
+      <iframe
+        class="map-frame"
+        src="https://maps.google.com/maps?q=Covent+Garden,London,UK&t=&z=15&ie=UTF8&iwloc=&output=embed"
+        title="Zara Kitchen — Covent Garden, London"
+        allowfullscreen
+        loading="lazy"
+      ></iframe>
+      <div class="loc-info">
+        <h3>Zara Kitchen</h3>
+        <div class="info-block">
+          <p class="info-label">Address</p>
+          <p class="info-value">
+            42 Spice Lane<br>
+            Covent Garden<br>
+            London, WC2E 8RF
+          </p>
+        </div>
+        <div class="info-block">
+          <p class="info-label">Phone</p>
+          <p class="info-value">
+            <a href="tel:+442071234567">+44 (0)20 7123 4567</a>
+          </p>
+        </div>
+        <div class="info-block">
+          <p class="info-label">Email</p>
+          <p class="info-value">
+            <a href="mailto:hello@zarakitchen.co.uk">hello@zarakitchen.co.uk</a>
+          </p>
+        </div>
+        <div class="info-block">
+          <p class="info-label">Opening Hours</p>
+          <p class="info-value">
+            Monday – Thursday &nbsp; 12:00 – 22:00<br>
+            Friday – Saturday &nbsp;&nbsp; 12:00 – 23:00<br>
+            Sunday &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12:00 – 21:00
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ══════════════════════════════════════════════════════════ -->
+<footer>
+  <p>© 2026 <strong>Zara Kitchen</strong> &nbsp;·&nbsp; Authentic Middle Eastern Cuisine</p>
+</footer>
+
+<button id="sticky-book" aria-label="Book a table">Book a Table</button>
+
+<script>
+  /* ── Sticky nav + book button ───────────────────────────────── */
+  const nav        = document.getElementById('nav');
+  const stickyBook = document.getElementById('sticky-book');
+  const heroEl     = document.getElementById('hero');
+
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+    stickyBook.classList.toggle('visible', window.scrollY > heroEl.offsetHeight * 0.85);
+  }, { passive: true });
+
+  stickyBook.addEventListener('click', () => {
+    document.getElementById('reservations').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  /* ── Hamburger ───────────────────────────────────────────────── */
+  const burger    = document.getElementById('burger');
+  const mobileNav = document.getElementById('mobile-nav');
+
+  burger.addEventListener('click', () => {
+    const open = mobileNav.classList.toggle('open');
+    burger.classList.toggle('open', open);
+    burger.setAttribute('aria-expanded', open);
+  });
+
+  function closeNav() {
+    mobileNav.classList.remove('open');
+    burger.classList.remove('open');
+    burger.setAttribute('aria-expanded', 'false');
+  }
+
+  /* close mobile nav when clicking outside */
+  document.addEventListener('click', (e) => {
+    if (!nav.contains(e.target) && !mobileNav.contains(e.target)) closeNav();
+  });
+
+  /* ── Scroll fade-in ──────────────────────────────────────────── */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade').forEach(el => io.observe(el));
+
+  /* ── Booking form ────────────────────────────────────────────── */
+  const form      = document.getElementById('booking-form');
+  const submitBtn = document.getElementById('submit-btn');
+
+  document.getElementById('date').min = new Date().toISOString().split('T')[0];
+
+  /* ── Custom time dropdown ──────────────────────────────────── */
+  const timeCsel    = document.getElementById('time-csel');
+  const timeTrigger = document.getElementById('time-trigger');
+  const timeList    = document.getElementById('time-list');
+  const timeHidden  = document.getElementById('time');
+  const timeValSpan = timeTrigger.querySelector('.csel-val');
+
+  function openTime() {
+    timeCsel.classList.add('open');
+    timeTrigger.setAttribute('aria-expanded', 'true');
+  }
+  function closeTime() {
+    timeCsel.classList.remove('open');
+    timeTrigger.setAttribute('aria-expanded', 'false');
+  }
+
+  /* toggle on trigger click */
+  timeTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    timeCsel.classList.contains('open') ? closeTime() : openTime();
+  });
+
+  /* select an option — only fires on deliberate click */
+  timeList.addEventListener('click', (e) => {
+    const li = e.target.closest('[role="option"]');
+    if (!li) return;
+    timeHidden.value = li.dataset.val;
+    timeValSpan.textContent = li.dataset.val;
+    timeValSpan.classList.remove('csel-placeholder');
+    timeList.querySelectorAll('[aria-selected]').forEach(el => el.removeAttribute('aria-selected'));
+    li.setAttribute('aria-selected', 'true');
+    timeCsel.classList.remove('csel-error');
+    closeTime();
+    timeTrigger.focus();
+  });
+
+  /* close on outside click — mousedown so it fires before blur */
+  document.addEventListener('mousedown', (e) => {
+    if (!timeCsel.contains(e.target)) closeTime();
+  });
+
+  /* close on Escape */
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeTime(); timeTrigger.focus(); }
+  });
+
+  function formatDate(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    return dt.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function formatGuests(val) {
+    if (val === '1') return '1 Guest';
+    if (val === '7+') return '7+ Guests';
+    return `${val} Guests`;
+  }
+
+  const resSection = document.getElementById('reservations');
+  const resForm    = document.getElementById('res-form');
+  const resConf    = document.getElementById('res-conf');
+  const tickWrap   = document.getElementById('tick-wrap');
+
+  function showConfirmation(data) {
+    document.getElementById('cval-name').textContent   = data.name;
+    document.getElementById('cval-date').textContent   = data.date;
+    document.getElementById('cval-time').textContent   = data.time;
+    document.getElementById('cval-guests').textContent = data.guests;
+
+    resForm.style.opacity = '0';
+    setTimeout(() => {
+      resForm.hidden = true;
+      resSection.classList.add('conf-mode');
+      resConf.removeAttribute('hidden');
+
+      /* restart tick animation cleanly */
+      tickWrap.classList.remove('tick-active');
+      void tickWrap.offsetWidth;
+      tickWrap.classList.add('tick-active');
+
+      requestAnimationFrame(() => resConf.classList.add('shown'));
+    }, 350);
+  }
+
+  document.getElementById('conf-reset').addEventListener('click', () => {
+    resConf.classList.remove('shown');
+    setTimeout(() => {
+      resConf.hidden = true;
+      resSection.classList.remove('conf-mode');
+      resForm.hidden = false;
+      resForm.style.opacity = '0';
+      form.reset();
+      timeHidden.value = '';
+      timeValSpan.textContent = 'Select a time';
+      timeValSpan.classList.add('csel-placeholder');
+      timeList.querySelectorAll('[aria-selected]').forEach(el => el.removeAttribute('aria-selected'));
+      requestAnimationFrame(() => { resForm.style.opacity = '1'; });
+    }, 350);
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    if (!timeHidden.value) {
+      timeCsel.classList.add('csel-error');
+      timeTrigger.focus();
+      openTime();
+      return;
+    }
+    showConfirmation({
+      name:   document.getElementById('name').value.trim(),
+      date:   formatDate(document.getElementById('date').value),
+      time:   timeHidden.value,
+      guests: formatGuests(document.getElementById('guests').value),
+    });
+  });
+
+  /* ── Hero slideshow ─────────────────────────────────────────── */
+  const heroBgs = Array.from(document.querySelectorAll('.hero-bg'));
+  let heroIdx = 0;
+  setInterval(() => {
+    heroBgs[heroIdx].classList.remove('active');
+    heroIdx = (heroIdx + 1) % heroBgs.length;
+    heroBgs[heroIdx].classList.add('active');
+  }, 5000);
+
+  /* ── Stagger menu cards on load ──────────────────────────────── */
+  document.querySelectorAll('.dish-card').forEach((card, i) => {
+    card.style.transitionDelay = `${i * 0.08}s`;
+  });
+</script>
+</body>
+</html>
